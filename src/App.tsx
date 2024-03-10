@@ -47,7 +47,7 @@ function App() {
     setHeroes(new Array(10).fill(undefined));
     setTavern(refreshTavern([], 1, 1));
     setGold(110);
-    setFame(1);
+    setFame(3);
     setTavernLevel(1);
     setInitialized(true);
     navigate("/town/");

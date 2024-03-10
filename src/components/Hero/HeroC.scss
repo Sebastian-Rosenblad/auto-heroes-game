@@ -5,6 +5,13 @@
   justify-content: center;
   width: 150px;
   height: 150px;
+  border: 3px solid;
+  box-sizing: border-box;
+  border-radius: 5px;
+  &.common { border-color: #aca;}
+  &.uncommon { border-color: #abd; }
+  &.rarity { border-color: #cca; }
+  &.summon { border-color: #bac; }
   p {
     margin: 0px;
     padding: 3px 5px;

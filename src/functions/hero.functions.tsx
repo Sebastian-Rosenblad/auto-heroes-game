@@ -63,7 +63,9 @@ export function getHeroToolTipText(hero: HeroM): JSX.Element {
 function abilityHeroText(text: string, hero: HeroM): string {
   let newText: string = text
     .split("[LEVEL]").join(hero.level.toString())
-    .split("[LEVEL*2]").join((hero.level * 2).toString());
+    .split("[LEVEL*2]").join((hero.level * 2).toString())
+    .split("[LEVEL*25]").join((hero.level * 25).toString())
+    .split("[LEVEL*1/3]").join(Math.round(hero.level * 100 / 3).toString());
   const pluralRegex = /\[PLURAL¨(.*?)¨(.*?)\]/g;
   newText = newText.replace(pluralRegex, (match, singular, plural) => {
     return hero.level === 1 ? singular : plural;

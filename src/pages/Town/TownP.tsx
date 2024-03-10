@@ -3,7 +3,8 @@ import './TownP.scss';
 import { TownPropsM } from "../../models/pages/town-props.model";
 import { HeroM } from "../../models/hero.model";
 import { HeroC } from "../../components/Hero/HeroC";
-import { heroToBattle } from "../../functions/hero.functions";
+import { getHeroToolTipText, heroToBattle } from "../../functions/hero.functions";
+import { EntityNameE } from "../../enums/entity-name.enum";
 
 export function TownP(props: TownPropsM): JSX.Element {
   const [buying, setBuying] = useState<HeroM | undefined>(undefined);
@@ -42,31 +43,63 @@ export function TownP(props: TownPropsM): JSX.Element {
       else props.updateHeroes([...props.heroes.map((hero, i) => i === index ? fromHero : i === moving ? toHero : hero)]);
     }
   }
+  function handleDropOverDismiss() {
+    if (moving !== undefined) {
+      const dismissHero: HeroM | undefined = props.heroes[moving];
+      if (dismissHero !== undefined) {
+        let newHeroes: Array<HeroM | undefined> = [...props.heroes.map(hero => hero?.id === dismissHero.id ? undefined : hero)];
+        if (dismissHero.base.name === EntityNameE.mule) {
+          newHeroes.forEach(hero => {
+            if (hero !== undefined) hero.bonusHealth += Math.floor((dismissHero.base.health * dismissHero.level + dismissHero.bonusHealth) / 8);
+          });
+        }
+        if (dismissHero.base.name === EntityNameE.squire) {
+          let targetIDs: Array<string> = newHeroes.map(hero => hero?.id || "").filter(id => id.length > 0).sort(() => Math.random() - .5).slice(0, dismissHero.level);
+          newHeroes.forEach(hero => {
+            if (hero !== undefined && targetIDs.includes(hero.id)) hero.bonusAttack += dismissHero.level;
+          })
+        }
+        props.updateHeroes(newHeroes);
+      }
+    }
+  }
   function buyMergeHero(index: number) {
     const hero: HeroM | undefined = props.heroes[index];
     if (hero !== undefined && buying !== undefined) {
       props.updateHeroes([...props.heroes.map((h, i) => index === i ? mergeHero(hero, buying) : h)]);
-      props.updateHeroes([...props.tavern.filter(h => h.id !== buying.id)]);
+      props.updateTavern([...props.tavern.filter(h => h.id !== buying.id)]);
       props.updateGold(props.gold - 3)
     }
   }
   function mergeHero(a: HeroM, b: HeroM): HeroM {
+    if (a.base.name === EntityNameE.fighter) {
+      const experience: number = a.experience + b.experience;
+      return {
+        id: a.id,
+        level: a.level + b.level + Math.floor(experience / 5),
+        experience: experience % 5,
+        bonusAttack: a.bonusAttack + b.bonusAttack,
+        bonusHealth: a.bonusHealth + b.bonusHealth,
+        base: a.base
+      }
+    }
     const expGain: number = (b.level * (b.level + 1)) * 2.5 + b.experience;
     const didLevelUp: boolean = a.experience + expGain >= (a.level + 1) * 5;
     const expRest: number = didLevelUp ? a.experience + expGain - (a.level + 1) * 5 : a.experience + expGain;
-    return {
+    let hero: HeroM = {
       id: a.id,
       level: a.level + (didLevelUp ? 1 : 0),
       experience: expRest,
       bonusAttack: a.bonusAttack + b.bonusAttack,
       bonusHealth: a.bonusHealth + b.bonusHealth,
       base: a.base
-    }
+    };
+    if (didLevelUp && hero.base.name === EntityNameE.mule) hero.bonusHealth += hero.base.health * hero.level + hero.bonusHealth;
+    return hero;
   }
   function handleTavernLevelClick() {
     props.updateTavernLevel(props.tavernLevel + 1);
     props.updateGold(props.gold - props.tavernLevel * tavernUpgradeMultiplier);
-    props.refreshTavern();
   }
   function handleTavernRefreshClick() {
     props.updateGold(props.gold - tavernRefreshCost);
@@ -98,13 +131,14 @@ export function TownP(props: TownPropsM): JSX.Element {
           ></div> :
           <div
             key={hero.id + "-" + index}
-            className="town--slot"
+            className="town--slot tooltip-container"
             draggable
             onDragStart={() => handleHeroStartDrag(index)}
             onDragOver={(evt) => evt.preventDefault()}
             onDrop={() => handleDropOverHero(index)}
           >
             <HeroC hero={heroToBattle(hero)}/>
+            {getHeroToolTipText(hero)}
           </div>
         )}
       </div>
@@ -124,13 +158,14 @@ export function TownP(props: TownPropsM): JSX.Element {
         ></div> :
         <div
           key={hero.id + "-" + index}
-          className="town--slot"
+          className="town--slot tooltip-container"
           draggable
           onDragStart={() => handleHeroStartDrag(index + 6)}
           onDragOver={(evt) => evt.preventDefault()}
           onDrop={() => handleDropOverHero(index + 6)}
         >
           <HeroC hero={heroToBattle(hero)}/>
+          {getHeroToolTipText(hero)}
         </div>
         )}
       </div>
@@ -139,22 +174,28 @@ export function TownP(props: TownPropsM): JSX.Element {
       <div className="town--tavern--info">
         <h2>Tavern</h2>
         <h3>Level: {props.tavernLevel}</h3>
-        {props.tavernLevel < tavernMaxLevel && <button onClick={handleTavernLevelClick} disabled={props.gold < tavernUpgradeMultiplier}>Level up <i>(cost {props.tavernLevel * tavernUpgradeMultiplier} gold)</i></button>}
+        {props.tavernLevel < tavernMaxLevel && <button onClick={handleTavernLevelClick} disabled={props.gold < props.tavernLevel * tavernUpgradeMultiplier}>Level up <i>(cost {props.tavernLevel * tavernUpgradeMultiplier} gold)</i></button>}
         <p>This is where you can hire more heroes for 3 gold each.</p>
       </div>
       <div className="town--tavern--slots">
         {props.tavern.map((hero, index) =>
           <div
             key={hero.id + "-" + index}
-            className="town--slot"
+            className="town--slot tooltip-container"
             draggable={props.gold >= 3}
             onDragStart={() => handleTavernStartDrag(hero)}
           >
             <HeroC hero={heroToBattle(hero)} />
+            {getHeroToolTipText(hero)}
           </div>
         )}
       </div>
       <button onClick={handleTavernRefreshClick} disabled={props.gold < tavernRefreshCost}>Refresh (cost {tavernRefreshCost} gold)</button>
+      <div
+        className="town--slot--empty"
+        onDragOver={(evt) => evt.preventDefault()}
+        onDrop={handleDropOverDismiss}
+      ><p>Dismiss</p></div>
     </div>
     <div className="town--shop"></div>
   </div>;

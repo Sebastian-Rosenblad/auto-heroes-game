@@ -36,14 +36,17 @@ function App() {
     if (values.tavern) setTavern(values.tavern);
     if (values.gold) setGold(values.gold);
     if (values.fame) setFame(values.fame);
-    if (values.tavernLevel) setTavernLevel(values.tavernLevel);
+    if (values.tavernLevel) {
+      setTavernLevel(values.tavernLevel);
+      setTavern(refreshTavern(heroes, values.tavernLevel, fame));
+    }
     setSave(true);
   }
 
   function startNewGame() {
     setHeroes(new Array(10).fill(undefined));
     setTavern(refreshTavern([], 1, 1));
-    setGold(11);
+    setGold(110);
     setFame(1);
     setTavernLevel(1);
     setInitialized(true);

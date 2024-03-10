@@ -26,10 +26,46 @@
   }
   &--slot {
     &--empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 150px;
       height: 150px;
       border: 1px solid;
       border-radius: 5px;
+    }
+  }
+  .tooltip-container {
+    position: relative;
+    display: inline-block;
+    .tooltip {
+      visibility: hidden;
+      position: absolute;
+      top: 105%;
+      left: -5%;
+      width: 240px;
+      z-index: 1;
+      background-color: #fff;
+      padding: 5px 10px;
+      border: 1px solid;
+      border-radius: 6px;
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: 100%;
+        left: 30%;
+        margin-left: -10px;
+        border-width: 10px;
+        border-style: solid;
+        border-color: black transparent transparent transparent;
+        transform: rotate(180deg);
+      }
+      p {
+        margin-bottom: 5px;
+      }
+    }
+    &:hover .tooltip {
+      visibility: visible;
     }
   }
 }

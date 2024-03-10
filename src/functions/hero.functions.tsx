@@ -54,3 +54,23 @@ function getFirstStrike(name: EntityNameE, level: number): number {
   if (name === EntityNameE.redImp) return 1;
   return 0;
 }
+export function getHeroToolTipText(hero: HeroM): JSX.Element {
+  return <div className="tooltip">
+    <p><b>{hero.base.name}</b></p>
+    {hero.base.ability.map((ability, i) => <p key={hero.id + "-tooltip-" + i}>{ability.title && <i>{ability.title} - </i>}{abilityHeroText(ability.text, hero)}</p>)}
+  </div>;
+}
+function abilityHeroText(text: string, hero: HeroM): string {
+  let newText: string = text
+    .split("[LEVEL]").join(hero.level.toString())
+    .split("[LEVEL*2]").join((hero.level * 2).toString());
+  const pluralRegex = /\[PLURAL¨(.*?)¨(.*?)\]/g;
+  newText = newText.replace(pluralRegex, (match, singular, plural) => {
+    return hero.level === 1 ? singular : plural;
+  });
+  const pluralSimpleRegex = /\[PLURAL¨¨(.*?)\]/g;
+  newText = newText.replace(pluralSimpleRegex, (match, append) => {
+    return hero.level === 1 ? '' : append;
+  });
+  return newText;
+}

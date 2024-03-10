@@ -1,0 +1,78 @@
+.hero {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+  p {
+    margin: 0px;
+    padding: 3px 5px;
+    border-radius: 5px;
+  }
+  &--art {
+    width: 80%;
+  }
+  &--level {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    p {
+      background-color: #ffa;
+    }
+  }
+  &--experience {
+    position: absolute;
+    top: 3px;
+    left: 25px;
+    right: 25px;
+    height: 18px;
+    &--bar {
+      width: 0%;
+      height: 100%;
+      background-color: #aff;
+      border-radius: 5px;
+    }
+    p {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      bottom: 0px;
+      right: 0px;
+      text-align: center;
+      padding: 0px 5px;
+    }
+  }
+  &--attack {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    p {
+      background-color: #ccc;
+    }
+  }
+  &--health {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    p {
+      background-color: #faa;
+    }
+  }
+  &--buffs {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 0px;
+    right: 0px;
+    &--first-strike {
+      background-color: #fca;
+    }
+    &--shield {
+      background-color: #acf;
+    }
+    &--poison {
+      background-color: #afa;
+    }
+  }
+}

@@ -1,0 +1,34 @@
+.town {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 50px;
+  &--banner {
+    display: flex;
+    justify-content: space-between;
+    &--item {
+      max-width: 260px;
+    }
+  }
+  &--field, &--bench, &--tavern {
+    display: flex;
+    &--info {
+      width: 220px;
+      padding: 10px 15px;
+      box-sizing: border-box;
+    }
+    &--slots {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+  }
+  &--slot {
+    &--empty {
+      width: 150px;
+      height: 150px;
+      border: 1px solid;
+      border-radius: 5px;
+    }
+  }
+}

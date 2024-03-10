@@ -12,6 +12,7 @@
   }
   &--field, &--bench, &--tavern {
     display: flex;
+    gap: 20px;
     &--info {
       width: 220px;
       padding: 10px 15px;

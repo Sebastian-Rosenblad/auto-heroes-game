@@ -3,43 +3,18 @@ import './TownP.scss';
 import { TownPropsM } from "../../models/pages/town-props.model";
 import { HeroM } from "../../models/hero.model";
 import { HeroC } from "../../components/Hero/HeroC";
-import { baseToHero, heroToBattle } from "../../functions/hero.functions";
-import { BaseHeroM } from "../../models/base-hero.model";
-import { getBaseHeroes } from "../../apis/hero.api";
-import { RarityE } from "../../enums/rarity.enum";
-import { EntityNameE } from "../../enums/entity-name.enum";
+import { heroToBattle } from "../../functions/hero.functions";
 
 export function TownP(props: TownPropsM): JSX.Element {
-  const [heroes, setHeroes] = useState<Array<HeroM | undefined>>(props.heroes);
-  const [tavern, setTavern] = useState<Array<HeroM>>([]);
   const [buying, setBuying] = useState<HeroM | undefined>(undefined);
   const [moving, setMoving] = useState<number | undefined>(undefined);
-  const baseHeroes: Array<BaseHeroM> = getBaseHeroes();
-  const rarities: Array<number> = baseHeroes.map(baseHero =>
-    baseHero.rarity === RarityE.common ? 256 :
-    (baseHero.rarity === RarityE.uncommon ? 4 : 1) * Math.pow(4, props.fame - 1)
-  );
-  const totalRarity: number = rarities.reduce((a, b) => a + b, 0);
   const tavernUpgradeMultiplier: number = 8;
   const tavernMaxLevel: number = 3;
   const tavernRefreshCost: number = 1;
 
-  useEffect(() => refreshTavern(), []);
-
-  function refreshTavern() {
-    const IDs: Array<string> = heroes.map(h => h?.id || "");
-    let newTavern: Array<HeroM> = [];
-    for (let i = 0; i < props.tavernLevel + 3; i++) newTavern.push(getRandomHero([...IDs, ...newTavern.map(h => h.id)]));
-    setTavern(newTavern);
-  }
-  function getRandomHero(IDs: Array<string>): HeroM {
-    let value: number = Math.random() * totalRarity;
-    for (let i = 0; i < rarities.length; i++) {
-      if (value <= rarities[i]) return baseToHero(baseHeroes[i], IDs);
-      value -= rarities[i];
-    }
-    return baseToHero(baseHeroes[baseHeroes.length - 1], IDs);
-  }
+  useEffect(() => {
+    if (!props.initialized) props.endGame();
+  }, []);
 
   function handleTavernStartDrag(hero: HeroM) {
     setBuying(hero);
@@ -51,27 +26,27 @@ export function TownP(props: TownPropsM): JSX.Element {
   }
   function handleDropOverHero(index: number) {
     if (buying !== undefined && props.gold >= 3) {
-      if (heroes[index] === undefined) {
-        setHeroes([...heroes.map((hero, i) => index === i ? buying : hero)]);
-        setTavern([...tavern.filter(hero => hero.id !== buying.id)]);
+      if (props.heroes[index] === undefined) {
+        props.updateHeroes([...props.heroes.map((hero, i) => index === i ? buying : hero)]);
+        props.updateTavern([...props.tavern.filter(hero => hero.id !== buying.id)]);
         props.updateGold(props.gold - 3);
       }
       else buyMergeHero(index);
     }
     else if (moving !== undefined) {
-      const fromHero: HeroM | undefined = heroes[moving];
-      const toHero: HeroM | undefined = heroes[index];
+      const fromHero: HeroM | undefined = props.heroes[moving];
+      const toHero: HeroM | undefined = props.heroes[index];
       if (fromHero !== undefined && toHero !== undefined && fromHero.base.name === toHero.base.name) {
-        setHeroes([...heroes.map((hero, i) => i === index ? mergeHero(toHero, fromHero) : i === moving ? undefined : hero)]);
+        props.updateHeroes([...props.heroes.map((hero, i) => i === index ? mergeHero(toHero, fromHero) : i === moving ? undefined : hero)]);
       }
-      else setHeroes([...heroes.map((hero, i) => i === index ? fromHero : i === moving ? toHero : hero)]);
+      else props.updateHeroes([...props.heroes.map((hero, i) => i === index ? fromHero : i === moving ? toHero : hero)]);
     }
   }
   function buyMergeHero(index: number) {
-    const hero: HeroM | undefined = heroes[index];
+    const hero: HeroM | undefined = props.heroes[index];
     if (hero !== undefined && buying !== undefined) {
-      setHeroes([...heroes.map((h, i) => index === i ? mergeHero(hero, buying) : h)]);
-      setTavern([...tavern.filter(h => h.id !== buying.id)]);
+      props.updateHeroes([...props.heroes.map((h, i) => index === i ? mergeHero(hero, buying) : h)]);
+      props.updateHeroes([...props.tavern.filter(h => h.id !== buying.id)]);
       props.updateGold(props.gold - 3)
     }
   }
@@ -91,11 +66,11 @@ export function TownP(props: TownPropsM): JSX.Element {
   function handleTavernLevelClick() {
     props.updateTavernLevel(props.tavernLevel + 1);
     props.updateGold(props.gold - props.tavernLevel * tavernUpgradeMultiplier);
-    setTavern([...tavern, getRandomHero([...heroes.map(hero => hero?.id || ""), ...tavern.map(hero => hero.id)])]);
+    props.refreshTavern();
   }
   function handleTavernRefreshClick() {
     props.updateGold(props.gold - tavernRefreshCost);
-    refreshTavern();
+    props.refreshTavern();
   }
 
   return <div className="town">
@@ -114,7 +89,7 @@ export function TownP(props: TownPropsM): JSX.Element {
         <p>These are the heroes you bring into battle.</p>
       </div>
       <div className="town--field--slots">
-        {heroes.slice(0, 6).map((hero, index) => hero === undefined ?
+        {props.heroes.slice(0, 6).map((hero, index) => hero === undefined ?
           <div
             key={"empty-hero-" + index}
             className="town--slot--empty"
@@ -140,7 +115,7 @@ export function TownP(props: TownPropsM): JSX.Element {
         <p>These are heroes you've hired but wont bring into battle.</p>
       </div>
       <div className="town--field--slots">
-        {heroes.slice(6).map((hero, index) => hero === undefined ?
+        {props.heroes.slice(6).map((hero, index) => hero === undefined ?
           <div
           key={"empty-hero-" + index}
           className="town--slot--empty"
@@ -168,7 +143,7 @@ export function TownP(props: TownPropsM): JSX.Element {
         <p>This is where you can hire more heroes for 3 gold each.</p>
       </div>
       <div className="town--tavern--slots">
-        {tavern.map((hero, index) =>
+        {props.tavern.map((hero, index) =>
           <div
             key={hero.id + "-" + index}
             className="town--slot"

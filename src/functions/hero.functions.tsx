@@ -65,7 +65,9 @@ function abilityHeroText(text: string, hero: HeroM): string {
     .split("[LEVEL]").join(hero.level.toString())
     .split("[LEVEL*2]").join((hero.level * 2).toString())
     .split("[LEVEL*25]").join((hero.level * 25).toString())
-    .split("[LEVEL*1/3]").join(Math.round(hero.level * 100 / 3).toString());
+    .split("[LEVEL/3]").join(Math.round(hero.level * 100 / 3).toString())
+    .split("[ATTACK]").join((hero.base.attack * hero.level + hero.bonusAttack).toString())
+    .split("[HEALTH/2]").join(Math.round((hero.base.health * hero.level + hero.bonusHealth)/2).toString());
   const pluralRegex = /\[PLURAL¨(.*?)¨(.*?)\]/g;
   newText = newText.replace(pluralRegex, (match, singular, plural) => {
     return hero.level === 1 ? singular : plural;

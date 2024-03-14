@@ -1,0 +1,35 @@
+.monster {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+  border: 3px solid;
+  box-sizing: border-box;
+  border-radius: 5px;
+  p {
+    margin: 0px;
+    padding: 3px 5px;
+    border-radius: 5px;
+  }
+  &--art {
+    width: 80%;
+  }
+  &--attack {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    p {
+      background-color: #ccc;
+    }
+  }
+  &--health {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    p {
+      background-color: #faa;
+    }
+  }
+}

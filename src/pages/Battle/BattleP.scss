@@ -1,1 +1,65 @@
-.battle {}
+.battle {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 50px;
+  &--banner {
+    display: flex;
+    justify-content: space-between;
+    &--item {
+      max-width: 260px;
+    }
+  }
+  &--field {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    overflow: hidden;
+    &--column-left {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-105%);
+      min-width: auto;
+      overflow: visible;
+      &--party {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-start;
+        gap: 10px;
+      }
+    }
+    &--column-right {
+      position: absolute;
+      left: 50%;
+      transform: translateX(5%);
+      min-width: auto;
+      overflow: visible;
+      &--monsters {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 10px;
+      }
+    }
+  }
+  &--view-buttons {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+    button {
+      font-size: 1.75rem;
+      padding: 10px 15px;
+    }
+  }
+}

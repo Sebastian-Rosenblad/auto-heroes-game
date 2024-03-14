@@ -2,12 +2,7 @@ import { HeroM } from "../models/hero.model";
 import { BattleHeroM } from "../models/battle-hero.model";
 import { EntityNameE } from "../enums/entity-name.enum";
 import { BaseHeroM } from "../models/base-hero.model";
-
-function getID(IDs: Array<string>): string {
-  let ID: string = Math.random().toString(16).slice(2,8);
-  while (IDs.includes(ID)) ID = Math.random().toString(16).slice(2,8);
-  return ID;
-}
+import { getID } from "./utils";
 
 export function baseToHero(base: BaseHeroM, IDs: Array<string>): HeroM {
   return {

@@ -17,6 +17,7 @@ export function HeroC(props: HeroPropsM): JSX.Element {
       {props.hero.firstStrike > 0 && <p className="hero--buffs--first-strike">{props.hero.firstStrike}</p>}
       {props.hero.shield > 0 && <p className="hero--buffs--shield">{props.hero.shield}</p>}
       {props.hero.poison > 0 && <p className="hero--buffs--poison">{props.hero.poison}</p>}
+      {props.hero.poisonous && <span className="hero--buffs--poisonous"></span>}
     </div>
   </div>;
 }

@@ -62,7 +62,7 @@ function App() {
     setHeroes(new Array(10).fill(undefined));
     setTavern(refreshTavern([], 1, 1));
     setGold(110);
-    setFame(1);
+    setFame(4);
     setTavernLevel(1);
     setBattles(0);
     setInitialized(true);
@@ -77,6 +77,7 @@ function App() {
     setTavernLevel(saveFile.tavernLevel);
     setInitialized(true);
     setBattleSeed(saveFile.seed);
+    if (saveFile.seed !== "") setParty(saveFile.heroes.slice(0, 6).filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined).map(heroToBattle).reverse());
   }
   function endGame() {
     setInitialized(false);
@@ -84,18 +85,21 @@ function App() {
   }
 
   function startBattle() {
-    setParty(heroes.slice(0, 6).filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined).map(heroToBattle));
+    setParty(heroes.slice(0, 6).filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined).map(heroToBattle).reverse());
     const seed: string = Math.random().toString(36).substring(2, 15);
     setBattleSeed(`${Date.now()}-${seed}`);
     setSave(true);
   }
   function endBattle(newParty: Array<BattleHeroM>, newGold: number, newLives: number) {
-    setHeroes(heroes.map(hero => hero === undefined ? undefined : updateHero(hero, newParty)));
+    const newHeroes: Array<HeroM | undefined> = heroes.map(hero => hero === undefined ? undefined : updateHero(hero, newParty));
+    setHeroes(newHeroes);
     setGold(newGold + 6);
     setLives(newLives);
     setBattles(battles + 1);
     setBattleSeed("");
-    if (fame < 3 && (battles + 1) % 5 === 0) setFame(fame + 1);
+    const newFame: number = Math.ceil((battles + 2) / 5) > 3 ? 3 : Math.ceil((battles + 2) / 5);
+    setFame(newFame);
+    setTavern(refreshTavern(newHeroes, tavernLevel, newFame));
     setSave(true);
   }
   function updateHero(hero: HeroM, party: Array<BattleHeroM>): HeroM {

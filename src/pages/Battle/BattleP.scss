@@ -23,7 +23,7 @@
     overflow: hidden;
     &--column-left {
       position: absolute;
-      left: 50%;
+      left: 70%;
       transform: translateX(-105%);
       min-width: auto;
       overflow: visible;
@@ -36,7 +36,7 @@
     }
     &--column-right {
       position: absolute;
-      left: 50%;
+      left: 70%;
       transform: translateX(5%);
       min-width: auto;
       overflow: visible;

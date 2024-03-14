@@ -46,11 +46,11 @@ function App() {
   }, [initialized, battleSeed]);
 
   function updateState(values: { [key: string]: any; }) {
-    if (values.heroes) setHeroes(values.heroes);
-    if (values.tavern) setTavern(values.tavern);
-    if (values.gold) setGold(values.gold);
-    if (values.fame) setFame(values.fame);
-    if (values.tavernLevel) {
+    if (values.heroes !== undefined) setHeroes(values.heroes);
+    if (values.tavern !== undefined) setTavern(values.tavern);
+    if (values.gold !== undefined) setGold(values.gold);
+    if (values.fame !== undefined) setFame(values.fame);
+    if (values.tavernLevel !== undefined) {
       setTavernLevel(values.tavernLevel);
       setTavern(refreshTavern(heroes, values.tavernLevel, fame));
     }
@@ -61,8 +61,8 @@ function App() {
     setLives(3);
     setHeroes(new Array(10).fill(undefined));
     setTavern(refreshTavern([], 1, 1));
-    setGold(110);
-    setFame(4);
+    setGold(11);
+    setFame(1);
     setTavernLevel(1);
     setBattles(0);
     setInitialized(true);

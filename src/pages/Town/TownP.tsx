@@ -59,6 +59,17 @@ export function TownP(props: TownPropsM): JSX.Element {
             if (hero !== undefined && targetIDs.includes(hero.id)) hero.bonusAttack += dismissHero.level;
           })
         }
+        const loneWolves: Array<string> = newHeroes.filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined && hero.base.name === EntityNameE.loneWolf).map(loneWolf => loneWolf.id);
+        if (loneWolves.length > 0) {
+          newHeroes = newHeroes.map(hero => hero === undefined ? undefined : (loneWolves.includes(hero.id) ? {
+            id: hero.id,
+            level: hero.level,
+            experience: hero.experience,
+            bonusAttack: hero.bonusAttack + Math.round((dismissHero.base.attack * dismissHero.level + dismissHero.bonusAttack) * (.25 * hero.level)),
+            bonusHealth: hero.bonusHealth + Math.round((dismissHero.base.health * dismissHero.level + dismissHero.bonusHealth) * (.25 * hero.level)),
+            base: hero.base
+          } : hero));
+        }
         props.updateHeroes(newHeroes);
       }
     }
@@ -102,6 +113,21 @@ export function TownP(props: TownPropsM): JSX.Element {
     props.updateGold(props.gold - props.tavernLevel * tavernUpgradeMultiplier);
   }
   function handleTavernRefreshClick() {
+    const innkeepers: Array<string> = props.heroes.filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined && hero.base.name === EntityNameE.innkeeper).map(hero => hero.id);
+    if (innkeepers.length > 0) {
+      const newHeroes: Array<HeroM | undefined> = props.heroes.map(hero => {
+        const effect: number = Math.random();
+        return hero === undefined ? undefined : (innkeepers.includes(hero.id) ? {
+          id: hero.id,
+          level: hero.level,
+          experience: hero.experience,
+          bonusAttack: effect < .5 ? hero.bonusAttack + hero.level : hero.bonusAttack,
+          bonusHealth: effect >= .5 ? hero.bonusHealth + hero.level : hero.bonusHealth,
+          base: hero.base
+        } : hero)
+      });
+      props.updateHeroes(newHeroes);
+    }
     props.updateGold(props.gold - tavernRefreshCost);
     props.refreshTavern();
   }

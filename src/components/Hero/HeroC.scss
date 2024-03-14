@@ -8,6 +8,10 @@
   border: 3px solid;
   box-sizing: border-box;
   border-radius: 5px;
+  &.tiny {
+    width: 100px;
+    height: 100px;
+  }
   &.common { border-color: #aca;}
   &.uncommon { border-color: #abd; }
   &.rarity { border-color: #cca; }

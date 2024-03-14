@@ -4,7 +4,7 @@ import { HeroPropsM } from "../../models/components/hero-props.model";
 import { EntityNameE } from "../../enums/entity-name.enum";
 
 export function HeroC(props: HeroPropsM): JSX.Element {
-  return <div className={["hero", props.hero.rarity.toLocaleLowerCase()].join(" ")}>
+  return <div className={["hero", props.hero.rarity.toLocaleLowerCase(), props.tiny ? "tiny" : ""].join(" ")}>
     <img className="hero--art" src={`/images/heroes/${props.hero.image}.png`} />
     <div className="hero--level"><p>{props.hero.level}</p></div>
     <div className="hero--experience">

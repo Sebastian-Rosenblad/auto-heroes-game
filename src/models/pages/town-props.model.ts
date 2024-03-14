@@ -5,6 +5,7 @@ export interface TownPropsM {
   endGame: () => void;
   heroes: Array<HeroM | undefined>;
   updateHeroes: (newHeroes: Array<HeroM | undefined>) => void;
+  lives: number;
   gold: number;
   updateGold: (newGold: number) => void;
   fame: number;
@@ -13,4 +14,5 @@ export interface TownPropsM {
   refreshTavern: () => void;
   tavernLevel: number;
   updateTavernLevel: (newTavernLevel: number) => void;
+  startBattle: () => void;
 }

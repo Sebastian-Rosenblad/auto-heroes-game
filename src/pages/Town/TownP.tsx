@@ -37,7 +37,7 @@ export function TownP(props: TownPropsM): JSX.Element {
     else if (moving !== undefined) {
       const fromHero: HeroM | undefined = props.heroes[moving];
       const toHero: HeroM | undefined = props.heroes[index];
-      if (fromHero !== undefined && toHero !== undefined && fromHero.base.name === toHero.base.name) {
+      if (fromHero !== undefined && toHero !== undefined && fromHero.id !== toHero.id && fromHero.base.name === toHero.base.name) {
         props.updateHeroes([...props.heroes.map((hero, i) => i === index ? mergeHero(toHero, fromHero) : i === moving ? undefined : hero)]);
       }
       else props.updateHeroes([...props.heroes.map((hero, i) => i === index ? fromHero : i === moving ? toHero : hero)]);
@@ -110,6 +110,9 @@ export function TownP(props: TownPropsM): JSX.Element {
     <div className="town--banner">
       <div className="town--banner--item">
         <h2>Gold: {props.gold}</h2>
+      </div>
+      <div className="town--banner--item">
+        <h2>Lives: {props.lives}</h2>
       </div>
       <div className="town--banner--item">
         <h2>Fame: {props.fame}</h2>
@@ -198,5 +201,6 @@ export function TownP(props: TownPropsM): JSX.Element {
       ><p>Dismiss</p></div>
     </div>
     <div className="town--shop"></div>
+    <button onClick={props.startBattle}>Start Battle!</button>
   </div>;
 }

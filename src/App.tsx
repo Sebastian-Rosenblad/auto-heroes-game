@@ -7,13 +7,19 @@ import { HomeP } from './pages/Home/HomeP';
 import { hasSavedGame, loadSavedGame, saveGame } from './functions/localstorage.functions';
 import { LocalStorageM } from './models/localstorage.model';
 import { refreshTavern } from './functions/tavern.functions';
+import { BattleHeroM } from './models/battle-hero.model';
+import { BattleP } from './pages/Battle/BattleP';
+import { heroToBattle } from './functions/hero.functions';
 
 function App() {
+  const [lives, setLives] = useState<number>(0);
   const [heroes, setHeroes] = useState<Array<HeroM | undefined>>([]);
+  const [party, setParty] = useState<Array<BattleHeroM>>([]);
   const [tavern, setTavern] = useState<Array<HeroM>>([]);
   const [gold, setGold] = useState<number>(0);
   const [fame, setFame] = useState<number>(0);
   const [tavernLevel, setTavernLevel] = useState<number>(0);
+  const [battles, setBattles] = useState<number>(0);
   const [save, setSave] = useState<boolean>(false);
   const [initialized, setInitialized] = useState<boolean>(false);
   let navigate = useNavigate();
@@ -22,6 +28,7 @@ function App() {
     if (save) {
       setSave(false);
       saveGame({
+        lives: lives,
         heroes: heroes,
         tavern: tavern,
         gold: gold,
@@ -44,16 +51,19 @@ function App() {
   }
 
   function startNewGame() {
+    setLives(3);
     setHeroes(new Array(10).fill(undefined));
     setTavern(refreshTavern([], 1, 1));
     setGold(110);
-    setFame(3);
+    setFame(1);
     setTavernLevel(1);
+    setBattles(0);
     setInitialized(true);
     navigate("/town/");
   }
   function continueGame() {
     const saveFile: LocalStorageM = loadSavedGame();
+    setLives(saveFile.lives);
     setHeroes(saveFile.heroes);
     setTavern(saveFile.tavern);
     setGold(saveFile.gold);
@@ -67,6 +77,33 @@ function App() {
     navigate("/");
   }
 
+  function startBattle() {
+    setParty(heroes.slice(0, 6).filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined).map(heroToBattle));
+    navigate("/battle/");
+  }
+  function endBattle(newParty: Array<BattleHeroM>, newGold: number, newLives: number) {
+    setHeroes(heroes.map(hero => hero === undefined ? undefined : updateHero(hero, newParty)));
+    setGold(newGold + 6);
+    setLives(newLives);
+    setBattles(battles + 1);
+    if (fame < 3 && (battles + 1) % 5 === 0) setFame(fame + 1);
+    navigate("/town/");
+  }
+  function updateHero(hero: HeroM, party: Array<BattleHeroM>): HeroM {
+    const battleHero: BattleHeroM | undefined = party.find(member => member.id === hero.id);
+    if (battleHero !== undefined) {
+      return {
+        id: hero.id,
+        level: battleHero.level,
+        experience: battleHero.experience,
+        bonusAttack: battleHero.bonusAttack,
+        bonusHealth: battleHero.bonusHealth,
+        base: hero.base
+      };
+    }
+    return hero;
+  }
+
   return (
     <div className="App">
       <Routes>
@@ -74,6 +111,7 @@ function App() {
           path='/'
           element= {
             <HomeP
+              save={hasSavedGame() ? loadSavedGame() : undefined}
               saveExist={hasSavedGame()}
               newGame={startNewGame}
               continue={continueGame}
@@ -88,6 +126,7 @@ function App() {
               endGame={endGame}
               heroes={heroes}
               updateHeroes={(value: Array<HeroM | undefined>) => updateState({ heroes: value })}
+              lives={lives}
               gold={gold}
               updateGold={(value: number) => updateState({ gold: value })}
               fame={fame}
@@ -96,6 +135,21 @@ function App() {
               refreshTavern={() => updateState({ tavern: refreshTavern(heroes, tavernLevel, fame) })}
               tavernLevel={tavernLevel}
               updateTavernLevel={(value: number) => updateState({ tavernLevel: value })}
+              startBattle={startBattle}
+            />
+          }
+        />
+        <Route
+          path='/battle/'
+          element={
+            <BattleP
+              initialized={initialized}
+              endGame={endGame}
+              party={party}
+              gold={gold}
+              lives={lives}
+              battles={battles}
+              endBattle={endBattle}
             />
           }
         />

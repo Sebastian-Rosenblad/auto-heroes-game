@@ -7,4 +7,5 @@ export interface LocalStorageM {
   gold: number;
   fame: number;
   tavernLevel: number;
+  seed: string;
 }

@@ -7,5 +7,6 @@ export interface BattlePropsM {
   gold: number;
   lives: number;
   battles: number;
+  seed: string;
   endBattle: (party: Array<BattleHeroM>, gold: number, lives: number) => void;
 }

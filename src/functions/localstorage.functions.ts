@@ -16,7 +16,8 @@ export function loadSavedGame(): LocalStorageM {
       tavern: parts[1].split(":").map(parseBaseHero),
       gold: parseInt(parts[2]),
       fame: parseInt(parts[3]),
-      tavernLevel: parseInt(parts[4])
+      tavernLevel: parseInt(parts[4]),
+      seed: parts[6]
     };
   }
   return {
@@ -25,11 +26,12 @@ export function loadSavedGame(): LocalStorageM {
     tavern: [],
     gold: 11,
     fame: 1,
-    tavernLevel: 1
+    tavernLevel: 1,
+    seed: ""
   };
 }
 export function saveGame(data: LocalStorageM) {
-  localStorage.setItem(KEY, [data.heroes.map(stringifyHero).join(":"), data.tavern.map(hero => hero.base.name + "," + hero.id).join(":"), data.gold, data.fame, data.tavernLevel, data.lives].join(";"));
+  localStorage.setItem(KEY, [data.heroes.map(stringifyHero).join(":"), data.tavern.map(hero => hero.base.name + "," + hero.id).join(":"), data.gold, data.fame, data.tavernLevel, data.lives, data.seed].join(";"));
 }
 function stringifyHero(hero: HeroM | undefined): string {
   if (hero === undefined) return "";

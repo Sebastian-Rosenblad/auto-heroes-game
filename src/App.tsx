@@ -12,14 +12,15 @@ import { BattleP } from './pages/Battle/BattleP';
 import { heroToBattle } from './functions/hero.functions';
 
 function App() {
-  const [lives, setLives] = useState<number>(0);
   const [heroes, setHeroes] = useState<Array<HeroM | undefined>>([]);
   const [party, setParty] = useState<Array<BattleHeroM>>([]);
   const [tavern, setTavern] = useState<Array<HeroM>>([]);
   const [gold, setGold] = useState<number>(0);
+  const [lives, setLives] = useState<number>(0);
   const [fame, setFame] = useState<number>(0);
   const [tavernLevel, setTavernLevel] = useState<number>(0);
   const [battles, setBattles] = useState<number>(0);
+  const [battleSeed, setBattleSeed] = useState<string>("");
   const [save, setSave] = useState<boolean>(false);
   const [initialized, setInitialized] = useState<boolean>(false);
   let navigate = useNavigate();
@@ -33,10 +34,16 @@ function App() {
         tavern: tavern,
         gold: gold,
         fame: fame,
-        tavernLevel: tavernLevel
+        tavernLevel: tavernLevel,
+        seed: battleSeed
       });
     }
   }, [save]);
+  useEffect(() => {
+    if (!initialized) navigate("/");
+    else if (battleSeed === "") navigate("/town/");
+    else navigate("/battle/");
+  }, [initialized, battleSeed]);
 
   function updateState(values: { [key: string]: any; }) {
     if (values.heroes) setHeroes(values.heroes);
@@ -59,7 +66,6 @@ function App() {
     setTavernLevel(1);
     setBattles(0);
     setInitialized(true);
-    navigate("/town/");
   }
   function continueGame() {
     const saveFile: LocalStorageM = loadSavedGame();
@@ -70,7 +76,7 @@ function App() {
     setFame(saveFile.fame);
     setTavernLevel(saveFile.tavernLevel);
     setInitialized(true);
-    navigate("/town/");
+    setBattleSeed(saveFile.seed);
   }
   function endGame() {
     setInitialized(false);
@@ -79,15 +85,18 @@ function App() {
 
   function startBattle() {
     setParty(heroes.slice(0, 6).filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined).map(heroToBattle));
-    navigate("/battle/");
+    const seed: string = Math.random().toString(36).substring(2, 15);
+    setBattleSeed(`${Date.now()}-${seed}`);
+    setSave(true);
   }
   function endBattle(newParty: Array<BattleHeroM>, newGold: number, newLives: number) {
     setHeroes(heroes.map(hero => hero === undefined ? undefined : updateHero(hero, newParty)));
     setGold(newGold + 6);
     setLives(newLives);
     setBattles(battles + 1);
+    setBattleSeed("");
     if (fame < 3 && (battles + 1) % 5 === 0) setFame(fame + 1);
-    navigate("/town/");
+    setSave(true);
   }
   function updateHero(hero: HeroM, party: Array<BattleHeroM>): HeroM {
     const battleHero: BattleHeroM | undefined = party.find(member => member.id === hero.id);
@@ -149,6 +158,7 @@ function App() {
               gold={gold}
               lives={lives}
               battles={battles}
+              seed={battleSeed}
               endBattle={endBattle}
             />
           }

@@ -1,0 +1,55 @@
+.heroes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  &--hero {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 400px;
+    padding: 10px;
+    border: 5px solid;
+    border-radius: 10px;
+    box-sizing: border-box;
+    &.common { border-color: #aca;}
+    &.uncommon { border-color: #abd; }
+    &.rarity { border-color: #cca; }
+    &.summon { border-color: #bac; }
+    img {
+      max-width: 150px;
+      margin: auto;
+    }
+    &--header, &--stats {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    &--header p {
+      padding: 5px 10px;
+      border-radius: 5px;
+      &.common { background-color: #aca;}
+      &.uncommon { background-color: #abd; }
+      &.rarity { background-color: #cca; }
+      &.summon { background-color: #bac; }
+    }
+    &--stats {
+      p {
+        padding: 5px 10px;
+        border-radius: 5px;
+      }
+      &--attack {
+        background-color: #fea;
+      }
+      &--health {
+        background-color: #faa;
+      }
+    }
+    &--abilities {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+  }
+}

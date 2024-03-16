@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import './App.scss';
-import { TownP } from './pages/Town/TownP';
-import { HeroM } from './models/hero.model';
-import { Route, Routes, useNavigate } from 'react-router-dom';
 import { HomeP } from './pages/Home/HomeP';
-import { hasSavedGame, loadSavedGame, saveGame } from './functions/localstorage.functions';
-import { LocalStorageM } from './models/localstorage.model';
-import { refreshTavern } from './functions/tavern.functions';
-import { BattleHeroM } from './models/battle-hero.model';
+import { TownP } from './pages/Town/TownP';
 import { BattleP } from './pages/Battle/BattleP';
+import { HeroesP } from './pages/Heroes/HeroesP';
+import { BattleHeroM } from './models/battle-hero.model';
+import { HeroM } from './models/hero.model';
+import { LocalStorageM } from './models/localstorage.model';
+import { Route, Routes, useNavigate } from 'react-router-dom';
+import { loadSavedGame, saveGame } from './functions/localstorage.functions';
 import { heroToBattle } from './functions/hero.functions';
+import { refreshTavern } from './functions/tavern.functions';
 
 function App() {
   const [heroes, setHeroes] = useState<Array<HeroM | undefined>>([]);
   const [party, setParty] = useState<Array<BattleHeroM>>([]);
   const [tavern, setTavern] = useState<Array<HeroM>>([]);
-  const [gold, setGold] = useState<number>(0);
   const [lives, setLives] = useState<number>(0);
+  const [gold, setGold] = useState<number>(0);
   const [fame, setFame] = useState<number>(0);
   const [tavernLevel, setTavernLevel] = useState<number>(0);
   const [battles, setBattles] = useState<number>(0);
@@ -29,9 +30,9 @@ function App() {
     if (save) {
       setSave(false);
       saveGame({
-        lives: lives,
         heroes: heroes,
         tavern: tavern,
+        lives: lives,
         gold: gold,
         fame: fame,
         tavernLevel: tavernLevel,
@@ -49,7 +50,6 @@ function App() {
     if (values.heroes !== undefined) setHeroes(values.heroes);
     if (values.tavern !== undefined) setTavern(values.tavern);
     if (values.gold !== undefined) setGold(values.gold);
-    if (values.fame !== undefined) setFame(values.fame);
     if (values.tavernLevel !== undefined) {
       setTavernLevel(values.tavernLevel);
       setTavern(refreshTavern(heroes, values.tavernLevel, fame));
@@ -58,9 +58,9 @@ function App() {
   }
 
   function startNewGame() {
-    setLives(3);
     setHeroes(new Array(10).fill(undefined));
     setTavern(refreshTavern([], 1, 1));
+    setLives(3);
     setGold(11);
     setFame(1);
     setTavernLevel(1);
@@ -68,16 +68,18 @@ function App() {
     setInitialized(true);
   }
   function continueGame() {
-    const saveFile: LocalStorageM = loadSavedGame();
-    setLives(saveFile.lives);
-    setHeroes(saveFile.heroes);
-    setTavern(saveFile.tavern);
-    setGold(saveFile.gold);
-    setFame(saveFile.fame);
-    setTavernLevel(saveFile.tavernLevel);
-    setInitialized(true);
-    setBattleSeed(saveFile.seed);
-    if (saveFile.seed !== "") setParty(saveFile.heroes.slice(0, 6).filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined).map(heroToBattle).reverse());
+    const saveFile: LocalStorageM | undefined = loadSavedGame();
+    if (saveFile !== undefined) {
+      setHeroes(saveFile.heroes);
+      setTavern(saveFile.tavern);
+      setLives(saveFile.lives);
+      setGold(saveFile.gold);
+      setFame(saveFile.fame);
+      setTavernLevel(saveFile.tavernLevel);
+      setInitialized(true);
+      setBattleSeed(saveFile.seed);
+      if (saveFile.seed !== "") setParty(saveFile.heroes.slice(0, 6).filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined).map(heroToBattle).reverse());
+    }
   }
   function endGame() {
     setInitialized(false);
@@ -93,8 +95,8 @@ function App() {
   function endBattle(newParty: Array<BattleHeroM>, newGold: number, newLives: number) {
     const newHeroes: Array<HeroM | undefined> = heroes.map(hero => hero === undefined ? undefined : updateHero(hero, newParty));
     setHeroes(newHeroes);
-    setGold(newGold + 6);
     setLives(newLives);
+    setGold(newGold + 6);
     setBattles(battles + 1);
     setBattleSeed("");
     const newFame: number = Math.ceil((battles + 2) / 5) > 3 ? 3 : Math.ceil((battles + 2) / 5);
@@ -124,8 +126,7 @@ function App() {
           path='/'
           element= {
             <HomeP
-              save={hasSavedGame() ? loadSavedGame() : undefined}
-              saveExist={hasSavedGame()}
+              save={loadSavedGame()}
               newGame={startNewGame}
               continue={continueGame}
             />
@@ -166,6 +167,10 @@ function App() {
               endBattle={endBattle}
             />
           }
+        />
+        <Route
+          path='/heroes/'
+          element={<HeroesP />}
         />
       </Routes>
     </div>

@@ -18,7 +18,17 @@ export const hero_db: Array<string> = [
   "Berserker;u;1;5;:Whenever the berserker takes damage it gains +[LEVEL] attack.",
   "Cat;u;1;1;:Lifesteal.",
   "Necromancer;u;2;2;:When a non-undead hero is knocked out in front of the necromancer, summon a X/1 Risen Skeleton in front of the necromancer, where X is [LEVEL/3]% of the knocked out hero's attack.",
-  "Bard;u;2;2;Start of battle:Give each hero a random buff. +[LEVEL] temporary attack or health, poisonous, +[LEVEL] shield, or +[LEVEL] first strike."
+  "Bard;u;2;2;Start of battle:Give each hero a random buff. +[LEVEL] temporary attack or health, poisonous, +[LEVEL] shield, or +[LEVEL] first strike.",
+  /*"Salvager",
+  "Rune Smith",
+  "Mentor",
+  "Alchemist",
+  "Shaman",
+  "Dragon Egg",
+  "Commander",
+  "Blue Jay",
+  "Panda",
+  "Conjurer"*/
 ];
 export const summons_db: Array<string> = [
   "Feral Rat;s;0;0;Poisonous.",

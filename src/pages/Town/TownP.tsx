@@ -37,9 +37,8 @@ export function TownP(props: TownPropsM): JSX.Element {
     else if (moving !== undefined) {
       const fromHero: HeroM | undefined = props.heroes[moving];
       const toHero: HeroM | undefined = props.heroes[index];
-      if (fromHero !== undefined && toHero !== undefined && fromHero.id !== toHero.id && fromHero.base.name === toHero.base.name) {
+      if (fromHero !== undefined && toHero !== undefined && fromHero.id !== toHero.id && fromHero.base.name === toHero.base.name)
         props.updateHeroes([...props.heroes.map((hero, i) => i === index ? mergeHero(toHero, fromHero) : i === moving ? undefined : hero)]);
-      }
       else props.updateHeroes([...props.heroes.map((hero, i) => i === index ? fromHero : i === moving ? toHero : hero)]);
     }
   }
@@ -48,29 +47,7 @@ export function TownP(props: TownPropsM): JSX.Element {
       const dismissHero: HeroM | undefined = props.heroes[moving];
       if (dismissHero !== undefined) {
         let newHeroes: Array<HeroM | undefined> = [...props.heroes.map(hero => hero?.id === dismissHero.id ? undefined : hero)];
-        if (dismissHero.base.name === EntityNameE.mule) {
-          newHeroes.forEach(hero => {
-            if (hero !== undefined) hero.bonusHealth += Math.floor((dismissHero.base.health * dismissHero.level + dismissHero.bonusHealth) / 8);
-          });
-        }
-        if (dismissHero.base.name === EntityNameE.squire) {
-          let targetIDs: Array<string> = newHeroes.map(hero => hero?.id || "").filter(id => id.length > 0).sort(() => Math.random() - .5).slice(0, dismissHero.level);
-          newHeroes.forEach(hero => {
-            if (hero !== undefined && targetIDs.includes(hero.id)) hero.bonusAttack += dismissHero.level;
-          })
-        }
-        const loneWolves: Array<string> = newHeroes.filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined && hero.base.name === EntityNameE.loneWolf).map(loneWolf => loneWolf.id);
-        if (loneWolves.length > 0) {
-          newHeroes = newHeroes.map(hero => hero === undefined ? undefined : (loneWolves.includes(hero.id) ? {
-            id: hero.id,
-            level: hero.level,
-            experience: hero.experience,
-            bonusAttack: hero.bonusAttack + Math.round((dismissHero.base.attack * dismissHero.level + dismissHero.bonusAttack) * (.25 * hero.level)),
-            bonusHealth: hero.bonusHealth + Math.round((dismissHero.base.health * dismissHero.level + dismissHero.bonusHealth) * (.25 * hero.level)),
-            base: hero.base
-          } : hero));
-        }
-        props.updateHeroes(newHeroes);
+        props.updateHeroes(triggerDismissHero(dismissHero, newHeroes));
       }
     }
   }
@@ -105,7 +82,7 @@ export function TownP(props: TownPropsM): JSX.Element {
       bonusHealth: a.bonusHealth + b.bonusHealth,
       base: a.base
     };
-    if (didLevelUp && hero.base.name === EntityNameE.mule) hero.bonusHealth += hero.base.health * hero.level + hero.bonusHealth;
+    if (didLevelUp) hero = triggerLevelUp(hero);
     return hero;
   }
   function handleTavernLevelClick() {
@@ -113,9 +90,53 @@ export function TownP(props: TownPropsM): JSX.Element {
     props.updateGold(props.gold - props.tavernLevel * tavernUpgradeMultiplier);
   }
   function handleTavernRefreshClick() {
+    triggerTavernRefresh();
+    props.updateGold(props.gold - tavernRefreshCost);
+    props.refreshTavern();
+  }
+
+  /*** Hero functions ***/
+  function triggerDismissHero(dismissHero: HeroM, heroes: Array<HeroM | undefined>): Array<HeroM | undefined> {
+    if (dismissHero.base.name === EntityNameE.mule) {
+      const bonusHealth: number = Math.floor((dismissHero.base.health * dismissHero.level + dismissHero.bonusHealth) / 8);
+      heroes.forEach(hero => {
+        if (hero !== undefined) hero.bonusHealth += bonusHealth;
+      });
+    }
+    if (dismissHero.base.name === EntityNameE.squire) {
+      let targetIDs: Array<string> = heroes.map(hero => hero?.id || "").filter(id => id.length > 0).sort(() => Math.random() - .5).slice(0, dismissHero.level);
+      heroes.forEach(hero => {
+        if (hero !== undefined && targetIDs.includes(hero.id)) hero.bonusAttack += dismissHero.level;
+      })
+    }
+    const loneWolves: Array<string> = heroes.filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined && hero.base.name === EntityNameE.loneWolf).map(loneWolf => loneWolf.id);
+    if (loneWolves.length > 0) {
+      heroes = heroes.map(hero => hero === undefined ? undefined : (loneWolves.includes(hero.id) ? {
+        id: hero.id,
+        level: hero.level,
+        experience: hero.experience,
+        bonusAttack: hero.bonusAttack + Math.round((dismissHero.base.attack * dismissHero.level + dismissHero.bonusAttack) * (.25 * hero.level)),
+        bonusHealth: hero.bonusHealth + Math.round((dismissHero.base.health * dismissHero.level + dismissHero.bonusHealth) * (.25 * hero.level)),
+        base: hero.base
+      } : hero));
+    }
+    return heroes;
+  }
+  function triggerLevelUp(hero: HeroM): HeroM {
+    if (hero.base.name === EntityNameE.mule) return {
+      id: hero.id,
+      level: hero.level,
+      experience: hero.experience,
+      bonusAttack: hero.bonusAttack,
+      bonusHealth: hero.bonusHealth * 2 + hero.base.health * hero.level,
+      base: hero.base
+    };
+    return hero;
+  }
+  function triggerTavernRefresh() {
     const innkeepers: Array<string> = props.heroes.filter((hero: HeroM | undefined): hero is HeroM => hero !== undefined && hero.base.name === EntityNameE.innkeeper).map(hero => hero.id);
     if (innkeepers.length > 0) {
-      const newHeroes: Array<HeroM | undefined> = props.heroes.map(hero => {
+      props.updateHeroes(props.heroes.map(hero => {
         const effect: number = Math.random();
         return hero === undefined ? undefined : (innkeepers.includes(hero.id) ? {
           id: hero.id,
@@ -125,11 +146,8 @@ export function TownP(props: TownPropsM): JSX.Element {
           bonusHealth: effect >= .5 ? hero.bonusHealth + hero.level : hero.bonusHealth,
           base: hero.base
         } : hero)
-      });
-      props.updateHeroes(newHeroes);
+      }));
     }
-    props.updateGold(props.gold - tavernRefreshCost);
-    props.refreshTavern();
   }
 
   return <div className="town">
@@ -142,7 +160,6 @@ export function TownP(props: TownPropsM): JSX.Element {
       </div>
       <div className="town--banner--item">
         <h2>Fame: {props.fame}</h2>
-        <p>You gain fame by going into battle. Higher fame increase the chances of uncommon and rare heroes appearing in the tavern.</p>
       </div>
     </div>
     <div className="town--field">

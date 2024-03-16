@@ -10,6 +10,9 @@ export function getBaseHeroes(): Array<BaseHeroM> {
   if (baseHeroes.length === 0) baseHeroes = hero_db.map(stringToBaseHero);
   return baseHeroes;
 }
+export function getBaseHero(name: EntityNameE): BaseHeroM {
+  return getBaseHeroes().find(hero => hero.name === name) || {} as BaseHeroM;
+}
 export function getBaseSummons(): Array<BaseHeroM> {
   if (baseSummons.length === 0) baseSummons = summons_db.map(stringToBaseHero);
   return baseSummons;

@@ -7,7 +7,7 @@ import { heroToBattle } from "../../functions/hero.functions";
 export function HomeP(props: HomePropsM): JSX.Element {
   return <div className="home">
     <button onClick={props.newGame}>New Game</button>
-    <button onClick={props.continue} disabled={!props.saveExist}>Continue</button>
+    <button onClick={props.continue} disabled={!props.save}>Continue</button>
     {props.save && <div className="saved-game">
       <h2>Saved game:</h2>
       <div className="saved-game--stats">

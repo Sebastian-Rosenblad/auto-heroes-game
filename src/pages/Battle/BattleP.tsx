@@ -63,7 +63,6 @@ export function BattleP(props: BattlePropsM): JSX.Element {
     setInitialized(true);
   }
   function generateBattleReport(): Array<StateM> {
-    console.log(party);
     let report: Array<StateM> = [{
       party: party,
       monsters: monsters,
@@ -78,7 +77,6 @@ export function BattleP(props: BattlePropsM): JSX.Element {
   function startOfBattleReport(initialState: StateM): Array<StateM> {
     let report: Array<StateM> = [initialState];
     let abilityOrderIDs: Array<string> = [...initialState.party.map(member => member.id).reverse(), ...initialState.monsters.map(monster => monster.id)];
-    console.log(abilityOrderIDs);
     while (abilityOrderIDs.length > 0) {
       const id: string | undefined = abilityOrderIDs.splice(0, 1)[0];
       const currentState: StateM = report[report.length - 1];

@@ -59,7 +59,7 @@
     bottom: 0px;
     left: 0px;
     p {
-      background-color: #ccc;
+      background-color: #fea;
     }
   }
   &--health {
@@ -81,6 +81,7 @@
     }
     &--shield {
       background-color: #acf;
+      border-radius: 50%;
     }
     &--poison {
       background-color: #afa;
